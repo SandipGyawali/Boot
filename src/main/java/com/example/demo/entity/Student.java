@@ -15,6 +15,13 @@ public class Student {
     private String lastName;
     @Column(unique = true)
     private String email;
+
+    @OneToOne(
+            mappedBy = "student",
+            cascade = CascadeType.ALL
+    )
+    private StudentProfile studentProfile;
+
     private int age;
 
     public Student(){}

@@ -34,4 +34,11 @@ public class StudentController {
     public Student getStudentByFirstname(@PathVariable String firstname){
         return studentRepository.findStudentByFirstName(firstname);
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteStudentById(@PathVariable Integer id){
+        System.out.println(id);
+        studentRepository.deleteById(id);
+    }
 }
