@@ -1,5 +1,8 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dto.StudentDto;
+import com.example.demo.dto.StudentResponse;
+import com.example.demo.entity.School;
 import com.example.demo.entity.Student;
 import com.example.demo.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +29,31 @@ public class StudentController {
 
     @PostMapping("/insert")
     @ResponseStatus(HttpStatus.CREATED)
-    public Student post(@RequestBody Student student){
-        return studentRepository.save(student);
+    public StudentResponse post(@RequestBody StudentDto studentDto){
+        System.out.println(studentDto);
+        var student = toStudent(studentDto);
+        return toStudentResponseDto(studentRepository.save(student));
+    }
+
+    private StudentResponse toStudentResponseDto(Student student){
+        return
+                new StudentResponse(student.getFirstName(),
+                student.getFirstName(),
+                student.getEmail());
+    }
+
+    private Student toStudent(StudentDto dto){
+        Student student = new Student();
+        student.setFirstName(dto.firstName());
+        student.setLastName(dto.lastName());
+        student.setAge(dto.age());
+        student.setEmail(dto.email());
+
+        School school = new School();
+        school.setId(dto.schoolId());
+        student.setSchool(school);
+
+        return student;
     }
 
     @GetMapping("/{firstname}")

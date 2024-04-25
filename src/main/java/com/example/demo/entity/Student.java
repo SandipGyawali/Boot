@@ -1,5 +1,7 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -15,14 +17,28 @@ public class Student {
     private String lastName;
     @Column(unique = true)
     private String email;
-
     @OneToOne(
             mappedBy = "student",
             cascade = CascadeType.ALL
     )
     private StudentProfile studentProfile;
 
+    @ManyToOne
+    @JoinColumn(
+            name = "school_id"
+    )
+    @JsonBackReference
+    // this entity does-not  need to serialize the school entity school is parent where parent will serialize for you.
+    private School school;
     private int age;
+
+    public StudentProfile getStudentProfile() {
+        return studentProfile;
+    }
+
+    public void setStudentProfile(StudentProfile studentProfile) {
+        this.studentProfile = studentProfile;
+    }
 
     public Student(){}
     public Student(String firstName, String lastName, String email, int age) {
@@ -30,6 +46,14 @@ public class Student {
         this.lastName = lastName;
         this.email = email;
         this.age = age;
+    }
+
+    public School getSchool() {
+        return school;
+    }
+
+    public void setSchool(School school) {
+        this.school = school;
     }
 
     public int getId() {
