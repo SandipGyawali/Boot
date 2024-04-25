@@ -1,2 +1,6 @@
-package com.example.demo.dto;public record SchoolDto() {
+package com.example.demo.dto;
+
+public record SchoolDto(
+        String name
+) {
 }

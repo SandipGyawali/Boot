@@ -1,12 +1,15 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dto.StudentDto;
-import com.example.demo.dto.StudentResponse;
-import com.example.demo.entity.School;
+import com.example.demo.dto.*;
 import com.example.demo.entity.Student;
+import com.example.demo.mapper.StudentMapper;
 import com.example.demo.repository.StudentRepository;
+import jakarta.validation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -16,9 +19,12 @@ import java.util.*;
 public class StudentController {
     private final StudentRepository studentRepository;
 
+    private final StudentMapper studentMapper;
+
     @Autowired
-    public StudentController(StudentRepository studentRepository){
+    public StudentController(StudentRepository studentRepository, StudentMapper studentMapper){
         this.studentRepository = studentRepository;
+        this.studentMapper = studentMapper;
     }
 
     @GetMapping
@@ -29,31 +35,9 @@ public class StudentController {
 
     @PostMapping("/insert")
     @ResponseStatus(HttpStatus.CREATED)
-    public StudentResponse post(@RequestBody StudentDto studentDto){
-        System.out.println(studentDto);
-        var student = toStudent(studentDto);
-        return toStudentResponseDto(studentRepository.save(student));
-    }
-
-    private StudentResponse toStudentResponseDto(Student student){
-        return
-                new StudentResponse(student.getFirstName(),
-                student.getFirstName(),
-                student.getEmail());
-    }
-
-    private Student toStudent(StudentDto dto){
-        Student student = new Student();
-        student.setFirstName(dto.firstName());
-        student.setLastName(dto.lastName());
-        student.setAge(dto.age());
-        student.setEmail(dto.email());
-
-        School school = new School();
-        school.setId(dto.schoolId());
-        student.setSchool(school);
-
-        return student;
+    public StudentResponse post(@Valid @RequestBody StudentDto studentDto){
+        var student = studentMapper.toStudent(studentDto);
+        return studentMapper.toStudentResponseDto(studentRepository.save(student));
     }
 
     @GetMapping("/{firstname}")
@@ -66,5 +50,20 @@ public class StudentController {
     public void deleteStudentById(@PathVariable Integer id){
         System.out.println(id);
         studentRepository.deleteById(id);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException exp
+    ){
+        var errors = new HashMap<String, String>();
+        exp.getBindingResult().getAllErrors()
+                .forEach(error -> {
+                    var fieldName = ((FieldError) error).getField();
+                    var errorMessage = error.getDefaultMessage();
+                    errors.put(fieldName, errorMessage);
+                });
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 }

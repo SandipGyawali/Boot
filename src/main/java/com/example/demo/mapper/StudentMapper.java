@@ -11,12 +11,16 @@ public class StudentMapper {
     public StudentResponse toStudentResponseDto(Student student){
         return
                 new StudentResponse(student.getFirstName(),
-                        student.getFirstName(),
+                        student.getLastName(),
                         student.getEmail());
     }
 
     public Student toStudent(StudentDto dto){
-        Student student = new Student();
+        if(dto == null){
+            throw new NullPointerException("The studentDto should not be null");
+        }
+
+        var student = new Student();
         student.setFirstName(dto.firstName());
         student.setLastName(dto.lastName());
         student.setAge(dto.age());
