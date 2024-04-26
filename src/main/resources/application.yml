@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/boot
+    url: jdbc:mysql://localhost:3000/boot?createDatabaseIfNotExist=true
     username: root
     password: Sandy10
     driver-class-name: com.mysql.cj.jdbc.Driver
